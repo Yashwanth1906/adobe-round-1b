@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Results - Persona-Based Document Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-content {
+            padding: 25px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .persona-card {
+            background: #e8f4fd;
+            border: 2px solid #2196F3;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .persona-role {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1976D2;
+            margin-bottom: 15px;
+        }
+        
+        .persona-task {
+            font-size: 1.1rem;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .ranked-section {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .ranked-header {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .rank-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .section-details {
+            padding: 20px;
+        }
+        
+        .section-text {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+        }
+        
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .metadata-item {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .metadata-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metadata-value {
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+        
+        .json-output {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Processing Results</h1>
+            <p>Persona-based ranked document sections</p>
+        </div>
+        
+        <div class="content">
+            <!-- Loading State -->
+            <div class="loading" id="loadingState">
+                <div class="spinner"></div>
+                <div>Loading results...</div>
+            </div>
+            
+            <!-- Error State -->
+            <div class="error" id="errorState" style="display: none;">
+                <strong>Error:</strong> <span id="errorMessage"></span>
+            </div>
+            
+            <!-- Results Content -->
+            <div id="resultsContent" style="display: none;">
+                <!-- Statistics -->
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+                
+                <!-- Persona Information -->
+                <div class="section">
+                    <div class="section-header">
+                        👤 Persona & Job Description
+                    </div>
+                    <div class="section-content">
+                        <div class="persona-card" id="personaCard">
+                            <!-- Persona details will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ranked Sections -->
+                <div class="section">
+                    <div class="section-header">
+                        🏆 Ranked Document Sections
+                        <span id="sectionCount"></span>
+                    </div>
+                    <div class="section-content" id="rankedSections">
+                        <!-- Ranked sections will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Raw JSON Output -->
+                <div class="section">
+                    <div class="section-header">
+                        📄 Complete JSON Output
+                        <button class="btn btn-secondary" onclick="toggleJSON()">Show/Hide JSON</button>
+                    </div>
+                    <div class="section-content">
+                        <div class="json-output" id="jsonOutput" style="display: none;">
+                            <!-- JSON will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="actions">
+                    <a href="/" class="btn btn-primary">Process New Documents</a>
+                    <button class="btn btn-secondary" onclick="downloadResults()">Download JSON</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard()">Copy JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let resultsData = null;
+        let inputData = null;
+
+        // Load results from sessionStorage
+        window.addEventListener('load', function() {
+            try {
+                const storedResults = sessionStorage.getItem('processingResult');
+                const storedInput = sessionStorage.getItem('inputData');
+                
+                if (storedResults && storedInput) {
+                    resultsData = JSON.parse(storedResults);
+                    inputData = JSON.parse(storedInput);
+                    displayResults();
+                } else {
+                    showError('No results data found. Please process documents first.');
+                }
+            } catch (error) {
+                showError('Error loading results: ' + error.message);
+            }
+        });
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').style.display = 'block';
+        }
+
+        function displayResults() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsContent').style.display = 'block';
+            
+            // Display statistics
+            displayStats();
+            
+            // Display persona information
+            displayPersona();
+            
+            // Display ranked sections
+            displayRankedSections();
+            
+            // Display raw JSON
+            document.getElementById('jsonOutput').textContent = JSON.stringify(resultsData, null, 2);
+        }
+
+        function displayStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            const rankedSections = resultsData.ranked_sections || [];
+            const documents = inputData.documents || [];
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${documents.length}</div>
+                    <div class="stat-label">Documents Processed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${rankedSections.length}</div>
+                    <div class="stat-label">Relevant Sections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${rankedSections.filter(s => s.relevance_score > 0.7).length}</div>
+                    <div class="stat-label">High Relevance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round((rankedSections.reduce((sum, s) => sum + (s.relevance_score || 0), 0) / rankedSections.length) * 100) || 0}%</div>
+                    <div class="stat-label">Avg Relevance</div>
+                </div>
+            `;
+        }
+
+        function displayPersona() {
+            const personaCard = document.getElementById('personaCard');
+            const persona = inputData.persona || {};
+            const job = inputData.job_to_be_done || {};
+            
+            personaCard.innerHTML = `
+                <div class="persona-role">👤 ${persona.role || 'Not specified'}</div>
+                <div class="persona-task"><strong>Task:</strong> ${job.task || 'Not specified'}</div>
+            `;
+        }
+
+        function displayRankedSections() {
+            const rankedSectionsContainer = document.getElementById('rankedSections');
+            const sectionCount = document.getElementById('sectionCount');
+            const sections = resultsData.ranked_sections || [];
+            
+            sectionCount.textContent = `(${sections.length} sections)`;
+            
+            if (sections.length === 0) {
+                rankedSectionsContainer.innerHTML = '<p>No relevant sections found.</p>';
+                return;
+            }
+            
+            rankedSectionsContainer.innerHTML = sections.map((section, index) => `
+                <div class="ranked-section">
+                    <div class="ranked-header">
+                        <span>${section.title || `Section ${index + 1}`}</span>
+                        <span class="rank-badge">Rank #${index + 1}</span>
+                    </div>
+                    <div class="section-details">
+                        <div class="metadata">
+                            <div class="metadata-item">
+                                <div class="metadata-label">Relevance Score</div>
+                                <div class="metadata-value">${((section.relevance_score || 0) * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">Document</div>
+                                <div class="metadata-value">${section.document_title || 'Unknown'}</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">Page</div>
+                                <div class="metadata-value">${section.page || 'N/A'}</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">Level</div>
+                                <div class="metadata-value">${section.level || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="section-text">
+                            ${section.text || section.content || 'No content available'}
+                        </div>
+                        ${section.reasoning ? `
+                            <div class="section-text" style="border-left-color: #2196F3; background: #f0f8ff;">
+                                <strong>💡 Why this is relevant:</strong> ${section.reasoning}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleJSON() {
+            const jsonOutput = document.getElementById('jsonOutput');
+            jsonOutput.style.display = jsonOutput.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function downloadResults() {
+            const blob = new Blob([JSON.stringify(resultsData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'persona_analysis_results.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function copyToClipboard() {
+            const jsonText = JSON.stringify(resultsData, null, 2);
+            navigator.clipboard.writeText(jsonText).then(() => {
+                alert('Results copied to clipboard!');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = jsonText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Results copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

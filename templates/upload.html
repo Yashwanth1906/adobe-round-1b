@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona-Based Document Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .json-input {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: #f9f9f9;
+        }
+        
+        .json-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .file-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .file-item {
+            background: white;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .sample-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .sample-btn:hover {
+            background: #5a6268;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Persona-Based Document Intelligence</h1>
+            <p>Upload PDFs and define a persona to get ranked, relevant document sections</p>
+        </div>
+        
+        <div class="content">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <!-- JSON Input Section -->
+                <div class="section">
+                    <h2>📝 1. Define Persona & Job</h2>
+                    <button type="button" class="sample-btn" onclick="loadSampleJSON()">Load Sample JSON</button>
+                    <textarea 
+                        id="jsonInput" 
+                        class="json-input" 
+                        placeholder="Enter your JSON configuration here..."
+                        required></textarea>
+                </div>
+                
+                <!-- PDF Upload Section -->
+                <div class="section">
+                    <h2>📄 2. Upload PDF Documents</h2>
+                    <div class="upload-area" onclick="document.getElementById('pdfFiles').click()">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">Click to select PDF files</div>
+                        <div class="upload-subtext">or drag and drop multiple PDFs here</div>
+                        <input type="file" id="pdfFiles" name="pdf_files" accept=".pdf" multiple required>
+                    </div>
+                    
+                    <div class="file-list" id="fileList">
+                        <h3>Selected Files:</h3>
+                        <div id="fileItems"></div>
+                    </div>
+                </div>
+                
+                <!-- Submit Section -->
+                <div class="section">
+                    <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                        🚀 Process Documents
+                    </button>
+                    
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <div>Processing your documents... This may take a few minutes.</div>
+                    </div>
+                    
+                    <div class="error" id="errorMsg"></div>
+                    <div class="success" id="successMsg"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const jsonInput = document.getElementById('jsonInput');
+        const pdfFiles = document.getElementById('pdfFiles');
+        const fileList = document.getElementById('fileList');
+        const fileItems = document.getElementById('fileItems');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const loading = document.getElementById('loading');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+
+        // Sample JSON for demonstration
+        function loadSampleJSON() {
+            const sampleJSON = {
+                "challenge_info": {
+                    "challenge_id": "round_1b_001",
+                    "test_case_name": "menu_planning",
+                    "description": "Dinner menu planning"
+                },
+                "documents": [
+                    {
+                        "filename": "Breakfast Ideas.pdf",
+                        "title": "Breakfast Ideas"
+                    },
+                    {
+                        "filename": "Dinner Ideas - Mains_1.pdf",
+                        "title": "Dinner Ideas - Mains_1"
+                    },
+                    {
+                        "filename": "Lunch Ideas.pdf",
+                        "title": "Lunch Ideas"
+                    }
+                ],
+                "persona": {
+                    "role": "Food Contractor"
+                },
+                "job_to_be_done": {
+                    "task": "Prepare a vegetarian buffet-style dinner menu for a corporate gathering, including gluten-free items."
+                }
+            };
+            
+            jsonInput.value = JSON.stringify(sampleJSON, null, 2);
+            validateForm();
+        }
+
+        // File selection handler
+        pdfFiles.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                displayFileList(files);
+                fileList.style.display = 'block';
+            } else {
+                fileList.style.display = 'none';
+            }
+            validateForm();
+        });
+
+        // Display selected files
+        function displayFileList(files) {
+            fileItems.innerHTML = '';
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                `;
+                fileItems.appendChild(fileItem);
+            });
+        }
+
+        // JSON input validation
+        jsonInput.addEventListener('input', validateForm);
+
+        function validateForm() {
+            const jsonValid = isValidJSON(jsonInput.value);
+            const filesSelected = pdfFiles.files.length > 0;
+            
+            submitBtn.disabled = !(jsonValid && filesSelected);
+        }
+
+        function isValidJSON(str) {
+            try {
+                JSON.parse(str);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Form submission
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Hide previous messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            // Show loading
+            submitBtn.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                // Validate JSON format
+                const jsonData = JSON.parse(jsonInput.value);
+                
+                // Create FormData
+                const formData = new FormData();
+                
+                // Create JSON file blob and append
+                const jsonBlob = new Blob([jsonInput.value], { type: 'application/json' });
+                formData.append('input_json_file', jsonBlob, 'challenge1b_input.json');
+                
+                // Append PDF files
+                Array.from(pdfFiles.files).forEach(file => {
+                    formData.append('pdf_files', file);
+                });
+                
+                // Submit to server
+                const response = await fetch('/process/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Redirect to results page with data
+                    sessionStorage.setItem('processingResult', JSON.stringify(result));
+                    sessionStorage.setItem('inputData', jsonInput.value);
+                    window.location.href = '/results';
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Processing failed');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = `Error: ${error.message}`;
+                errorMsg.style.display = 'block';
+            } finally {
+                // Hide loading
+                loading.style.display = 'none';
+                submitBtn.style.display = 'block';
+            }
+        });
+
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('.upload-area');
+
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#764ba2';
+            uploadArea.style.background = '#e8ebff';
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.style.borderColor = '#667eea';
+            uploadArea.style.background = '#f8f9ff';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#667eea';
+            uploadArea.style.background = '#f8f9ff';
+            
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+            
+            if (files.length > 0) {
+                // Create a new FileList-like object
+                const dataTransfer = new DataTransfer();
+                files.forEach(file => dataTransfer.items.add(file));
+                pdfFiles.files = dataTransfer.files;
+                
+                displayFileList(files);
+                fileList.style.display = 'block';
+                validateForm();
+            } else {
+                alert('Please drop only PDF files');
+            }
+        });
+    </script>
+</body>
+</html>
