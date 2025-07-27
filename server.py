@@ -4,8 +4,10 @@ import shutil
 import tempfile
 from typing import List
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Form
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 # Import the processing functions from our modules
 from processing.pdf_parser import extract_pdf_lines_cleaned_and_merged
@@ -19,8 +21,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Setup templates
+templates = Jinja2Templates(directory="templates")
+
 # Define the main processing directory
 BASE_CONTENT_DIR = "content"
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    """Serve the upload page"""
+    return templates.TemplateResponse("upload.html", {"request": request})
+
+@app.get("/results", response_class=HTMLResponse)
+async def results_page(request: Request):
+    """Serve the results page"""
+    return templates.TemplateResponse("results.html", {"request": request})
 
 @app.post("/process/", response_class=JSONResponse)
 async def process_documents(
