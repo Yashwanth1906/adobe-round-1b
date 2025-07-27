@@ -3,7 +3,3 @@ uvicorn[standard]
 python-multipart
 PyMuPDF
 sentence-transformers
-
-# This next line tells pip to look for CPU-only versions of torch
---index-url https://download.pytorch.org/whl/cpu
-torch
