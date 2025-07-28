@@ -1,9 +1,5 @@
 
----
 
-### adobe-round-1b/README.md
-
-```markdown
 # Adobe Hackathon - Round 1B: Persona-Based Document Intelligence
 
 ## Challenge Goal
