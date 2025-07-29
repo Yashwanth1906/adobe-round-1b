@@ -53,7 +53,7 @@ This solution combines the structured parsing pipeline from Round 1A with semant
 
 ### 4. Refined Summarization
 
-- For top-ranked sections, generate summaries using a lightweight LLM (e.g., `phi-2`, `tiny-llama`)
+- For top-ranked sections, generate summaries using a lightweight LLM `phi-2`
 - Output includes:
   - Clean, human-readable abstracts
   - Compact, factual insights tailored to the persona’s goals
